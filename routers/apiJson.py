@@ -15,8 +15,16 @@ async def login(user: User):
 
 
 # Restful
-@router.get("/data")
+@router.get("/data", summary="test for long description", description="long description")
 async def root():
+    """
+    # Markdwon
+    ## Hello World
+
+    Cool!
+    - I can write markdwon message here
+    - It's **awesome**
+    """
     return {"message": "Hello World"}
 
 @router.post("/data")
