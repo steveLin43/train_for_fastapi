@@ -1,8 +1,25 @@
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
+from fastapi.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from routers.apiForm import router as form_router
 from routers.apiJson import router as json_router
 from config import Settings
+
+class CustomHeaderMiddleware(BaseHTTPMiddleware):
+    # call_next 用於處理進來的 api 路徑與參數
+    async def dispatch(self, request, call_next):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        response.headers["X-Process-Time"] = str(process_time)
+        return response
+    
+middleware = [
+    Middleware(CustomHeaderMiddleware)
+]
 
 description = """
 # 詳細說明
@@ -13,7 +30,21 @@ app = FastAPI(
     title="可自訂的文件標題",
     version="1.2.3",
     summary="這只是 Demo 用的",
-    description=description
+    description=description,
+    middleware=middleware
+)
+
+# 需要繞過 CORS 的來源網域
+origins = [
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
 )
 
 # 將文件的路由移除、不顯示
