@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from routers.apiForm import router as form_router
 from routers.apiJson import router as json_router
+from config import Settings
 
 description = """
 # 詳細說明
@@ -27,3 +28,14 @@ app.include_router(json_router, prefix="/user", tags=["user"])
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+settings = Settings()
+
+@app.get("/info")
+async def info():
+    return {
+        "app_name": settings.app_name,
+        "admin_email": settings.admin_email,
+        "items_per_user": settings.items_per_user,
+    }
