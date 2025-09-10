@@ -1,5 +1,5 @@
 import time
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, BackgroundTasks
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -138,3 +138,14 @@ async def read_main():
 async def startup_event():
     items["foo"] = {"name": "Fighters"}
     items["bar"] = {"name": "Tenders"}
+
+def print_msg():
+    time.sleep(5)
+    print("Hello")
+
+@app.get("/back")
+async def back(background_tasks: BackgroundTasks):
+    print("Hi")
+    background_tasks.add_task(print_msg)
+    return {"msg": "Hello World"}
+
