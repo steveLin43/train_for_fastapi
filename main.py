@@ -1,9 +1,11 @@
 import time
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
+from typing import Any, Dict, Union
 
 from routers.apiForm import router as form_router
 from routers.apiJson import router as json_router
@@ -19,7 +21,16 @@ class CustomHeaderMiddleware(BaseHTTPMiddleware):
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
         return response
-    
+
+# 讓預期錯誤顯示 msg，非預期錯誤顯示 detail
+class NewHTTPException(HTTPException):
+    def __init__(self, status_code: int, detail: Any = None, headers: Union[Dict[str, Any], None] = None, msg: str = None) -> None:
+        super().__init__(status_code, detail, headers)
+        if msg:
+            self.msg = msg
+        else:
+            self.msg = detail
+
 middleware = [
     Middleware(CustomHeaderMiddleware)
 ]
@@ -68,9 +79,33 @@ def get_db():
     finally:
         db.close()
 
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as e:     # 非預期的錯誤
+        print("Error:", e)     # 紀錄非預期的錯誤的 log
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error"},
+        )
+
+@app.exception_handler(NewHTTPException)
+async def unicorn_exception_handler(request: Request, exc: NewHTTPException):
+    print("Error:", exc.msg)   # 紀錄可預期的錯誤的 log
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    try:
+        print(a)
+        b = 1 / 0
+    except NameError as e:   # 可預期的錯誤
+        raise NewHTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="This is Value Error", msg=str(e))
 
 
 settings = Settings()
