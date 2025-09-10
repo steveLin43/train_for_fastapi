@@ -4,6 +4,7 @@
 pip install "fastapi[all]"
 pip install "uvicorn[standard]"
 pip install python-multipart
+pip install sqlalchemy
 
 查看文件:
 直接到 http://127.0.0.1:8000/docs
