@@ -12,6 +12,7 @@ from routers.apiJson import router as json_router
 from config import Settings
 from database import SessionLocal, engine
 import models, schemas, crud
+from log import logger
 
 class CustomHeaderMiddleware(BaseHTTPMiddleware):
     # call_next 用於處理進來的 api 路徑與參數
@@ -83,9 +84,11 @@ def get_db():
 async def add_process_time_header(request: Request, call_next):
     try:
         response = await call_next(request)
+        if response.status_code < 400:
+           logger.info("Info")
         return response
     except Exception as e:     # 非預期的錯誤
-        print("Error:", e)     # 紀錄非預期的錯誤的 log
+        logger.error("Error:", e)     # 紀錄非預期的錯誤的 log
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal Server Error"},
@@ -93,7 +96,7 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.exception_handler(NewHTTPException)
 async def unicorn_exception_handler(request: Request, exc: NewHTTPException):
-    print("Error:", exc.msg)   # 紀錄可預期的錯誤的 log
+    logger.error("Error:", exc.msg)   # 紀錄可預期的錯誤的 log
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
@@ -101,6 +104,7 @@ async def unicorn_exception_handler(request: Request, exc: NewHTTPException):
 
 @app.get("/")
 async def root():
+    logger.info('Test info log')
     try:
         print(a)
         b = 1 / 0
