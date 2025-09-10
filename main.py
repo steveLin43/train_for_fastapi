@@ -128,3 +128,13 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
+
+@app.get("/read_main")
+async def read_main():
+    return {"msg": "Hello World"}
+
+# 監控啟動事件
+@app.on_event("startup")
+async def startup_event():
+    items["foo"] = {"name": "Fighters"}
+    items["bar"] = {"name": "Tenders"}

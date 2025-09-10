@@ -6,6 +6,7 @@ pip install "uvicorn[standard]"
 pip install python-multipart
 pip install sqlalchemy
 pip install alembic
+pip install pytest httpx 
 
 查看文件:
 直接到 http://127.0.0.1:8000/docs
@@ -20,3 +21,4 @@ pip install alembic
 注意事項:
 1. 沒有指定是 Form 物件的話，FastAPI 會認定是 Query Parameter
 2. 如果沒有用 summary 參數，function 名稱會成為文件中後面的說明
+3. 測試腳本和 function 都必須使用 test 開頭，才會被 pytest 納入測試執行範圍，執行指令: pytest
