@@ -7,6 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
 from typing import Any, Dict, Union
 from ws_api import websocket_endpoint
+from fastapi_restful.tasks import repeat_every
 
 from routers.apiForm import router as form_router
 from routers.apiJson import router as json_router
@@ -140,6 +141,7 @@ async def read_main():
 async def startup_event():
     items["foo"] = {"name": "Fighters"}
     items["bar"] = {"name": "Tenders"}
+    await repeat_task()
 
 def print_msg():
     time.sleep(5)
@@ -151,3 +153,6 @@ async def back(background_tasks: BackgroundTasks):
     background_tasks.add_task(print_msg)
     return {"msg": "Hello World"}
 
+@repeat_every(seconds=5)
+async def repeat_task() -> None:
+    print("test")

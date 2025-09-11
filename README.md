@@ -8,6 +8,7 @@ pip install sqlalchemy
 pip install alembic
 pip install pytest httpx 
 pip install websockets
+pip install "fastapi-restful[all]"
 
 查看文件:
 直接到 http://127.0.0.1:8000/docs
