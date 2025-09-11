@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
 from typing import Any, Dict, Union
+from ws_api import websocket_endpoint
 
 from routers.apiForm import router as form_router
 from routers.apiJson import router as json_router
@@ -72,6 +73,7 @@ app.add_middleware(
 
 app.include_router(form_router, prefix="/api", tags=["api"])
 app.include_router(json_router, prefix="/user", tags=["user"])
+app.add_websocket_route("/ws", chat_socket)
 
 def get_db():
     db = SessionLocal()
